@@ -69,14 +69,23 @@ def main():
                 with open(file_path, 'w', encoding='utf-8') as file:
                     file.write(content)
 
-                # مقایسه محتوای جدید با آخرین محتوا
+                # مقایسه محتوای جدید با آخرین محتوا و ایجاد لاگ
+                log_content = ''
                 if url in last_content and content != last_content[url]:
-                    similarity = SequenceMatcher(None, content, last_content[url]).ratio()
-                    if similarity < match_percentage / 100:
-                        # ارسال ایمیل هشدار
-                        subject = f'تغییر محتوا در {url}'
-                        body = f'محتوای وب سایت {url} با آخرین محتوا کمتر از {match_percentage}% انطباق دارد.'
-                        send_email(subject, body, to_email, email_config)
+                    similarity = SequenceMatcher(None, content, last_content[url]).ratio() * 100
+                    log_content += f'میزان انطباق: {similarity:.2f}%\n'
+                    # تعیین عنوان ایمیل بر اساس میزان تغییرات
+                    if similarity < match_percentage:
+                        subject = 'لاگ'
+                    else:
+                        subject = 'ارسال لاگ'
+                    # ایجاد فایل لاگ
+                    log_file_name = f'log_{clean_url}_{timestamp}.txt'
+                    log_file_path = f'{save_path}/{log_file_name}'
+                    with open(log_file_path, 'w', encoding='utf-8') as log_file:
+                        log_file.write(log_content)
+                    # ارسال ایمیل با لاگ
+                    send_email(subject, log_content, to_email, email_config)
 
                 last_content[url] = content
         time.sleep(interval_minutes * 60)
