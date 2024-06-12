@@ -73,6 +73,7 @@ def main():
                 log_content = ''
                 if url in last_content and content != last_content[url]:
                     similarity = SequenceMatcher(None, content, last_content[url]).ratio() * 100
+                    print(f'درصد انطباق برای {url}: {similarity:.2f}%')
                     log_content += f'میزان انطباق: {similarity:.2f}%\n'
                     # تعیین عنوان ایمیل بر اساس میزان تغییرات
                     if similarity < match_percentage:
